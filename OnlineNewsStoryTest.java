@@ -15,7 +15,7 @@ public class OnlineNewsStoryTest {
 			OnlineNewsStory onlineNewsStory = new OnlineNewsStory(LocalDate.of(2000, 12, 31), "Times of London", 20,
 					"Interesting Topic", "Interesting Subject", PartOfDay.MORNING, newsMaker1, newsMaker1);
 		} catch (RuntimeException e) {
-			fail("TVnewsStory constuctor does not exist or is not functional");
+			fail("TVnewsStory constuctor does not exist or is not functional at all");
 		}
 	}
 
