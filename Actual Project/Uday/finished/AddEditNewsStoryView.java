@@ -109,22 +109,25 @@ public class AddEditNewsStoryView extends JPanel{
 			jcbNewsStoryType = new JComboBox<NewsMedia>(NewsMedia.values());
 			jplNewsStoryType.add(jcbNewsStoryType);
 
-			// makes panel for source, adds label and combo box
+			// makes panel for source, adds label and editable combo box
 			jplNewsStorySource = new JPanel(new GridLayout(1, 0, 5, 5));
 			jplNewsStorySource.add(jlbNewsStorySource);
 			jcbNewsStorySource = new JComboBox<String>(newsDataBaseModel.getNewsSources());
+			jcbNewsStorySource.setEditable(true);
 			jplNewsStorySource.add(jcbNewsStorySource);
 
-			// makes panel for topic, adds label and combo box
+			// makes panel for topic, adds label and editable combo box
 			jplNewsStoryTopic = new JPanel(new GridLayout(1, 0, 5, 5));
 			jplNewsStoryTopic.add(jlbNewsStoryTopic);
 			jcbNewsStoryTopic = new JComboBox<String>(newsDataBaseModel.getNewsTopics());
+			jcbNewsStoryTopic.setEditable(true);
 			jplNewsStoryTopic.add(jcbNewsStoryTopic);
 
-			// makes panel for subject, adds label and combo box
+			// makes panel for subject, adds label and editable combo box
 			jplNewsStorySubject = new JPanel(new GridLayout(1, 0, 5, 5));
 			jplNewsStorySubject.add(jlbNewsStorySubject);
 			jcbNewsStorySubject = new JComboBox<String>(newsDataBaseModel.getNewsSubjects());
+			jcbNewsStorySubject.setEditable(true);
 			jplNewsStorySubject.add(jcbNewsStorySubject);
 
 			// makes panel for news maker 1, adds label and editable combo box
@@ -219,26 +222,29 @@ public class AddEditNewsStoryView extends JPanel{
 			}
 			jplNewsStoryType.add(jcbNewsStoryType);
 
-			// makes panel for source, adds label and combo box
+			// makes panel for source, adds label and editable combo box
 			jplNewsStorySource = new JPanel(new GridLayout(1, 0, 5, 5));
 			jplNewsStorySource.add(jlbNewsStorySource);
 			jcbNewsStorySource = new JComboBox<String>(newsDataBaseModel.getNewsSources());
+			jcbNewsStorySource.setEditable(true);
 			// selects the current story's source
 			jcbNewsStorySource.setSelectedItem(newsStory.getSource());
 			jplNewsStorySource.add(jcbNewsStorySource);
 
-			// makes panel for topic, adds label and combo box
+			// makes panel for topic, adds label and editable combo box
 			jplNewsStoryTopic = new JPanel(new GridLayout(1, 0, 5, 5));
 			jplNewsStoryTopic.add(jlbNewsStoryTopic);
 			jcbNewsStoryTopic = new JComboBox<String>(newsDataBaseModel.getNewsTopics());
+			jcbNewsStoryTopic.setEditable(true);
 			// selects the current story's topic
 			jcbNewsStoryTopic.setSelectedItem(newsStory.getTopic());
 			jplNewsStoryTopic.add(jcbNewsStoryTopic);
 
-			// makes panel for subject, adds label and combo box
+			// makes panel for subject, adds label and editable combo box
 			jplNewsStorySubject = new JPanel(new GridLayout(1, 0, 5, 5));
 			jplNewsStorySubject.add(jlbNewsStorySubject);
 			jcbNewsStorySubject = new JComboBox<String>(newsDataBaseModel.getNewsSubjects());
+			jcbNewsStorySubject.setEditable(true);
 			// selects the current story's subject
 			jcbNewsStorySubject.setSelectedItem(newsStory.getSubject());
 			jplNewsStorySubject.add(jcbNewsStorySubject);
@@ -336,4 +342,5 @@ public class AddEditNewsStoryView extends JPanel{
 		}
 	}
 }
+
 
