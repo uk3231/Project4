@@ -1,3 +1,4 @@
+
 public enum PartOfDay {
 	MORNING, AFTERNOON, EVENING, LATE_NIGHT;
 
@@ -20,5 +21,4 @@ public enum PartOfDay {
 			throw new IllegalArgumentException();
 		}
 	}
-
 }
