@@ -23,7 +23,7 @@ class UserInterface {
 		LocalDate date = newsStory.getDate();
 
 		// If the type doesn't include TV, use words
-		if (!mediaType.contains("t")) {
+		if (!newsMedia.contains(NewsMedia.TV)) {
 			if (newsStory instanceof NewspaperStory) {
 				storyString += date.getMonth().getDisplayName(TextStyle.FULL, Locale.US) + " " + date.getDayOfMonth()
 						+ ", " + date.getYear() + "; " + newsStory.getSource() + "; " + newsStory.getLength()
@@ -36,7 +36,7 @@ class UserInterface {
 			}
 		}
 		// If the type is TV news, use seconds (from length)
-		else if (mediaType.equals("t")) {
+		else if (newsMedia.size()==1&&newsMedia.contains(NewsMedia.TV)) {
 			storyString += date.getMonth().getDisplayName(TextStyle.FULL, Locale.US) + " " + date.getDayOfMonth() + ", "
 					+ date.getYear() + "; " + newsStory.getSource() + "; " + newsStory.getLength() + " seconds; "
 					+ newsStory.getTopic() + "; " + newsStory.getSubject() + "; "
