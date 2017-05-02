@@ -125,7 +125,7 @@ public class NewsMakerModel implements Serializable {
 			}
 			for (int i = 0; i < list.size(); i++) {
 				ActionListener listener = list.get(i);
-				listener.actionPerformed(e);
+				listener.actionPerformed(actionEvent);
 			}
 		}
 
