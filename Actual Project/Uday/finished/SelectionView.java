@@ -14,6 +14,7 @@ import javax.swing.JSplitPane;
 
 /**
  * @author Uday Kohli, Dr. Hougen, Jonathan Kunjummen
+ * Uday wrote most of this class
  *
  */
 public class SelectionView extends JFrame implements ActionListener{
