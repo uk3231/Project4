@@ -15,6 +15,8 @@ public class TVNewsStory extends NewsStory implements Serializable{
 
 	public TVNewsStory(LocalDate date, String source, int length, String topic, String subject, PartOfDay partOfDay,
 			NewsMakerModel newsMaker1, NewsMakerModel newsMaker2) {
+		super(date, source, length, topic, subject, newsMaker1, newsMaker2);
+		this.partOfDay = partOfDay;
 	}
 
 	public int getLengthInWords() {
