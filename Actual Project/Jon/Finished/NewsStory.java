@@ -73,19 +73,33 @@ public abstract class NewsStory implements Comparable<NewsStory>, Serializable {
 		return newsMaker2;
 	}
 	
-	public void setDate(LocalDate date){}
+	public void setDate(LocalDate date){
+		this.date = date;
+	}
 	
-	public void setSource(String source){}
+	public void setSource(String source){
+		this.source = source;
+	}
 	
-	public void setLength(int length){}
+	public void setLength(int length){
+		this.length = length;
+	}
 	
-	public void setTopic(String topic){}
+	public void setTopic(String topic){
+		this.topic = topic;
+	}
 	
-	public void setSubject(String subject){}
+	public void setSubject(String subject){
+		this.subject = subject;
+	}
 	
-	public void setNewsMaker1(NewsMakerModel newsMaker1){}
+	public void setNewsMaker1(NewsMakerModel newsMaker1){
+		this.newsMaker1 = newsMaker1;
+	}
 	
-	public void setNewsMaker2(NewsMakerModel newsMaker2){}
+	public void setNewsMaker2(NewsMakerModel newsMaker2){
+		this.newsMaker2 = newsMaker2;
+	}
 	
 	public boolean equals(Object o) {
 		if (o instanceof NewsStory) {
@@ -120,4 +134,5 @@ public abstract class NewsStory implements Comparable<NewsStory>, Serializable {
 	public int compareTo(NewsStory newsStory) {
 		return this.topic.compareTo(newsStory.topic);
 	}
+
 }
