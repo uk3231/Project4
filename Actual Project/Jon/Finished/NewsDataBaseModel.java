@@ -2,6 +2,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -30,7 +31,13 @@ public class NewsDataBaseModel implements Serializable{
 	
 	private NewsStoryListModel newsStoryListModel;
 	
-	public NewsDataBaseModel(){		
+	public NewsDataBaseModel(){
+		this.actionListenerList = new ArrayList<ActionListener>();		
+		this.newsSourceMap = new HashMap<String, String>();		
+		this.newsTopicMap = new HashMap<String, String>();		
+		this.newsSubjectMap = new HashMap<String, String>();
+		this.newsMakerListModel = new NewsMakerListModel();
+		this.newsStoryListModel = new NewsStoryListModel();
 	}
 	
 	public NewsDataBaseModel(NewsMakerListModel newsMakerListModel, NewsStoryListModel newsStoryListModel){
