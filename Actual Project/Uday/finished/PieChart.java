@@ -71,20 +71,21 @@ public class PieChart extends JFrame{
 		this.title = title;
 		this.wedges = wedges;
 
-		// Create a general heavy-weight container.
-		JFrame frame = new JFrame(this.title);
+		// this is a heavyweight container (extends JFrame)
+		// sets the title
+		setTitle(title);
 
 		// Set its size.
-		frame.setSize(1000, 500);
+		setSize(1000, 500);
 
 		// Create a specialized light-weight container.
 		JPanel panel = new PieChartPanel();
 
-		// Add the specialized container to the general container.
-		frame.add(panel);
+		// Add the specialized container to this.
+		add(panel);
 
 		// Make the GUI visible on the screen.
-		frame.setVisible(true);
+		setVisible(true);
 	}
 
 	public void setTitle(String title){
@@ -238,4 +239,3 @@ public class PieChart extends JFrame{
 		}
 	}
 }
-
