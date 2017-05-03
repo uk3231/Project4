@@ -26,11 +26,26 @@ public class PieChartView implements ActionListener{
 	private String measure;
 	
 	
-	public PieChartView(NewsMakerModel newsMakerModel, String media, String content, String measure){
+	public PieChartView(NewsMakerModel newsMakerModel, List<NewsMedia> newsMedia, 
+			NewsContent content, NewsMetric measure){
 		this.newsMakerModel = newsMakerModel;
-		this.media = media;
-		this.content = content;
-		this.measure = measure;
+		
+		// its a little complicated to construct media if there is a list of 
+		// media enums that are passed to the constructor
+		this.media = "";
+
+		// if all three news media are used, then add nothng to the media type 
+		if(newsMedia.size() == 3){
+		} else if(newsMedia.size() == 2){
+			// add the two media types with a slash
+			media += newsMedia.get(0).toString() + "/" + newsMedia.get(1).toString();
+		} else if(newsMedia.size() == 1){
+			// add the one media type
+			media = newsMedia.get(0).toString();
+		} // there shouldn't be any other options
+
+		this.content = content.toString();
+		this.measure = measure.toString();
 		
 		List<Wedge> wedges = constructWedges();
 		String title = constructTitle();
@@ -61,9 +76,9 @@ public class PieChartView implements ActionListener{
 		// Select the news stories of the media type(s) requested.
 		for (int i = 0; i < newsStoryList.size(); i++) {
 			NewsStory newsStory = newsStoryList.get(i);
-			if ((media.contains("n") && newsStory instanceof NewspaperStory)
-					|| (media.contains("t") && newsStory instanceof TVNewsStory)
-					|| (media.contains("o") && newsStory instanceof OnlineNewsStory)) {
+			if ((media.contains(NewsMedia.NEWSPAPER) && newsStory instanceof NewspaperStory)
+					|| (media.contains(NewsMedia.TV) && newsStory instanceof TVNewsStory)
+					|| (media.contains(NewsMedia.ONLINE) && newsStory instanceof OnlineNewsStory)) {
 				selectedNewsStories.add(newsStory);
 			}
 		}
@@ -83,11 +98,11 @@ public class PieChartView implements ActionListener{
 
 			/* Get items of the correct content type. */
 			String itemName = null;
-			if ("source".equalsIgnoreCase(content)) {
+			if ("source".equalsIgnoreCase(content.toString())) {
 				itemName = newsStory.getSource();
-			} else if ("topic".equalsIgnoreCase(content)) {
+			} else if ("topic".equalsIgnoreCase(content.toString())) {
 				itemName = newsStory.getTopic();
-			} else if ("subject".equals(content)) {
+			} else if ("subject".equals(content.toString())) {
 				itemName = newsStory.getSubject();
 			} // TODO: Check for invalid content type
 
@@ -100,7 +115,7 @@ public class PieChartView implements ActionListener{
 			Integer itemQuantity = itemNameQuantityMap.get(itemName);
 
 			// If the measure is count, we'll just add one.
-			if ("count".equalsIgnoreCase(measure)) {
+			if ("count".equalsIgnoreCase(measure.toString())) {
 				if (itemQuantity == null) {
 					itemNameQuantityMap.put(itemName, 1);
 				} else {
@@ -109,7 +124,7 @@ public class PieChartView implements ActionListener{
 				totalQuantity++;
 			}
 			// If the measure is length, we'll need to add the length.
-			else if ("length".equalsIgnoreCase(measure)) {
+			else if ("length".equalsIgnoreCase(measure.toString())) {
 				int addedQuantity = newsStory.getLengthInWords();
 				if (itemQuantity == null) {
 					itemNameQuantityMap.put(itemName, addedQuantity);
@@ -153,4 +168,3 @@ public class PieChartView implements ActionListener{
 		pieChart.repaint();
 	}
 }
-
