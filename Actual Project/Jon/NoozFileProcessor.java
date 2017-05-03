@@ -10,12 +10,17 @@ class NoozFileProcessor {
 
 	private static NewsMakerListModel newsMakers = new NewsMakerListModel();
 	
-	private static NewsStoryListModel newsStories;
+	private static NewsStoryListModel newsStories = new NewsStoryListModel();
 	
-	private static NewsDataBaseModel newsDataBase;
+	private static NewsDataBaseModel newsDataBase = new NewsDataBaseModel();
 
 	public static NewsDataBaseModel readNoozFile(String fileName, Map<String, String> sourceMap,
 			Map<String, String> topicMap, Map<String, String> subjectMap) throws IOException {
+
+		newsDataBase.setNewsSourceMap(sourceMap);
+		newsDataBase.setNewsTopicMap(topicMap);
+		newsDataBase.setNewsSubjectMap(subjectMap);
+		
 		// TODO Handle possible I/O errors (Eventually)
 		FileReader fr = new FileReader(fileName);
 		BufferedReader br = new BufferedReader(fr);
@@ -26,12 +31,15 @@ class NoozFileProcessor {
 			nextLine = br.readLine();
 		}
 		br.close();
+		
+		newsDataBase.setNewsMakerListModel(newsMakers);
+		newsDataBase.setNewsStoryListModel(newsStories);
 
 		return newsDataBase;
 	}
 
 	public static void writeNewsTextFile(String FileName, String listOfStories) throws IOException {
-		FileWriter outfile = new FileWriter(outputFileName);
+		FileWriter outfile = new FileWriter(FileName);
 		BufferedWriter bw = new BufferedWriter(outfile);
 		bw.write(listOfStories);
 		bw.newLine();
@@ -92,7 +100,7 @@ class NoozFileProcessor {
 		 * The first news maker is constructed based on the first news maker
 		 * name read.
 		 */
-		NewsMaker newsMaker1 = new NewsMaker(newsMakerName1);
+		NewsMakerModel newsMaker1 = new NewsMakerModel(newsMakerName1);
 		// If the news maker is on the list, use the copy already on the list
 		if (newsMakers.contains(newsMaker1)) {
 			newsMaker1 = newsMakers.get(newsMaker1);
@@ -106,7 +114,7 @@ class NoozFileProcessor {
 		 * The second news maker is constructed based on the second news maker
 		 * name read.
 		 */
-		NewsMaker newsMaker2 = new NewsMaker(newsMakerName2);
+		NewsMakerModel newsMaker2 = new NewsMakerModel(newsMakerName2);
 		// If the news maker is on the list, use the copy already on the list
 		if (newsMakers.contains(newsMaker2)) {
 			newsMaker2 = newsMakers.get(newsMaker2);
@@ -149,6 +157,10 @@ class NoozFileProcessor {
 		// The news story is added to each news maker
 		newsMaker1.addNewsStory(newsStory);
 		newsMaker2.addNewsStory(newsStory);
+		
+		newsMakers.add(newsMaker1);
+		newsMakers.add(newsMaker2);
+		newsStories.add(newsStory);
 	}
 
 	/**
