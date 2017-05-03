@@ -17,10 +17,15 @@ import java.lang.Math;
  * its wedges adds up to 100% (within some margin of error).
  * </P>
  * 
- * @author Dean Hougen
+ * @author Dean Hougen, Uday Kohli, Jon Kunjummen
  * @version 1.0
+ * 
+ * Uday modified the class Dr. Hougen provided us
+ * 
+ * Jon, this class required surprisingly little work. 
+ * I feel like I am missing something
  */
-public class PieChart {
+public class PieChart extends JFrame{
 	/**
 	 * The list of wedges, each of which specifies its own label and its own
 	 * width (in percent).
@@ -83,16 +88,15 @@ public class PieChart {
 	}
 
 	public void setTitle(String title){
-		//TODO
+		this.title = title;
 	}
 	
 	public void setWedges(List<Wedge> wedges){
-		//TODO
-		
+		this.wedges = wedges;		
 	}
 	
-	public void paintComponent(Graphics g){
-		//TODO
+	public void paintComponents(Graphics g){
+		super.paintComponents(g);
 	}
 	
 	/**
@@ -234,3 +238,4 @@ public class PieChart {
 		}
 	}
 }
+
