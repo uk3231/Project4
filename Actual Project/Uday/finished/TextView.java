@@ -217,15 +217,15 @@ public class TextView implements ActionListener{
 		if(newsMedia.size() == 3){
 			title += "Stories sorted by ";
 		} else if(newsMedia.size() == 2){
-			title += newsMedia.get(0) + "/" + newsMedia.get(1) +
+			title += newsMedia.get(0).toString() + "/" + newsMedia.get(1).toString() +
 					" sorted by ";
 		} else if(newsMedia.size() == 1){
-			title += newsMedia.get(0) + " sorted by ";
+			title += newsMedia.get(0).toString() + " sorted by ";
 		} // there shouldn't be any other options
 		
 		// add the sort criteria in order
 		for (int i = 0; i < 5; i++){
-			title += sortCriteria.get(i) + ", ";
+			title += sortCriteria.get(i).toString() + ", ";
 		}
 		// remove the last space and comma
 		title = title.substring(0, title.length() - 2);
