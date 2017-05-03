@@ -138,7 +138,7 @@ public class SelectionView extends JFrame implements ActionListener{
 		jplNewsMakerList.add(new JLabel("News Makers"));
 		
 		// constructs a jlist with the newsmakerlist model from the database model
-		jlNewsMakerList = new JList(newsDataBaseModel.getNewsMakerListModel);
+		jlNewsMakerList = new JList<NewsMakerModel>(newsDataBaseModel.getNewsMakerListModel().getNewsMakers());
 		
 		// adds the jlist to the scroll pane
 		jspNewsMakerList.add(jlNewsMakerList);
@@ -151,7 +151,7 @@ public class SelectionView extends JFrame implements ActionListener{
 		jplNewsStoryList.add(new JLabel("News Stories"));
 		
 		// constructs a jlist with the newsstorylist model from the database model
-		jlNewsStoryList = new JList(newsDataBaseModel.getNewsStoryListModel);
+		jlNewsStoryList = new JList<NewsStory>(newsDataBaseModel.getNewsStoryListModel().getNewsStories());
 		
 		// adds the jlit to the scrool pane
 		jspNewsStoryList.add(jlNewsStoryList);
