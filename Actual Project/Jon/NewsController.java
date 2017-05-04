@@ -1,9 +1,19 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class NewsController {
@@ -34,11 +44,39 @@ public class NewsController {
 		this.selectionView = selectionView;
 	}
 	
-	private void loadNewsData(){
-		JFileChooser fileChooser;
+	private void loadNewsData() throws IOException, ClassNotFoundException{
+		JFileChooser j = new JFileChooser();
+		int returnVal = j.showOpenDialog(selectionView);
+		if(JFileChooser.APPROVE_OPTION == returnVal){
+			String fileName = null;
+			try{
+				fileName = j.getSelectedFile().getCanonicalPath();
+			}
+			catch(IOException e){						
+			}
+			FileInputStream fileInputStream = new FileInputStream(fileName);
+			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+			newsDataBaseModel = (NewsDataBaseModel)objectInputStream.readObject();
+			objectInputStream.close();
+		}								
 	}
 	
-	private void saveNewsData(){}
+	private void saveNewsData(){
+		JFileChooser j = new JFileChooser();
+		int returnVal = j.showOpenDialog(selectionView);
+		if(JFileChooser.APPROVE_OPTION == returnVal){
+			String fileName = null;
+			try{
+				fileName = j.getSelectedFile().getCanonicalPath();
+			}
+			catch(IOException e){						
+			}			
+			FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+			objectOutputStream.writeObject(newsDataBaseModel);
+			objectOutputStream.close();
+		}
+	}
 	
 	private void importNoozStories(){
 		boolean haveSources = false;
@@ -98,8 +136,26 @@ public class NewsController {
 		newsDataBaseModel = NoozFileProcessor.readNoozFile(storiesFileName, newsSourceMap, newsTopicMap, newsSubjectMap);
 	}
 	
-	private void exportNewsStories(){}
-	
+	//need to finish
+	private void exportNewsStories(){
+		JFileChooser j = new JFileChooser();
+		int returnVal = j.showOpenDialog(selectionView);
+		if(JFileChooser.APPROVE_OPTION == returnVal){
+			String fileName = null;
+			try{
+				fileName = j.getSelectedFile().getCanonicalPath();
+			}
+			catch(IOException e){
+			}			
+
+			FileWriter outfile = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(outfile);
+			bw.write(newsDataBaseModel);
+			bw.newLine();
+			bw.close();
+		}
+	}
+
 	//https://docs.oracle.com/javase/tutorial/uiswing/components/dialog.html
 	private void addNewsMaker(){
 		JFrame frame = new JFrame();
@@ -119,8 +175,25 @@ public class NewsController {
 		}
 	}
 	
-	private void editNewsMakers(){}
-	
+	private void editNewsMakers(){
+		if(0 == selectionView.getSelectedNewsMakers().length){
+			JOptionPane.showMessageDialog(null, "No news makers are selected.");
+			return;
+		}
+		else{
+			for(int i : selectionView.getSelectedNewsMakers()){
+				JDialog jdialog = new JDialog();
+				jdialog.setTitle("Editing News Maker");
+				editNewsMakerView = new EditNewsMakerView(newsDataBaseModel.getNewsMakers().get(i),newsDataBaseModel);
+				editNewsMakerView.jtfName.setActionCommand("Remove News Maker");
+				editNewsMakerView.jbtRemoveFromStory.setActionCommand("Edit News Maker");
+				editNewsMakerView.jbtRemoveFromStory.addActionListener(new RemoveNewsMakerFromNewsStoriesListener());
+				editNewsMakerView.jtfName.addActionListener(new EditNewsMakerNameListener());
+				jdialog.add(editNewsMakerView);
+			}
+		}
+	}
+
 	private void deleteNewsMakers(){
 		if(0 == selectionView.getSelectedNewsMakers().length){
 			JOptionPane.showMessageDialog(null, "No news makers are selected.");
@@ -151,12 +224,32 @@ public class NewsController {
 		}
 	}
 	
-	private void deleteNewsMakerList(){}
+	private void deleteNewsMakerList(){
+		newsDataBaseModel.removeAllNewsMakers();
+	}
 	
-	private void addNewsStory(){}
+	private void addNewsStory(){
+		viewDialog = new JDialog();
+		viewDialog.setTitle("Adding News Story");
+		addEditNewsStoryView = new AddEditNewsStoryView(newsDataBaseModel,null);
+		addEditNewsStoryView.jbtAddEditNewsStory.addActionListener(new AddEditNewsStoryListener());
+		viewDialog.add(addEditNewsStoryView);
+	}
 	
-	private void editNewsStories(){
-		
+	private void editNewsStories(){	
+		if(0 == selectionView.getSelectedNewsStories().length){
+			JOptionPane.showMessageDialog(null, "No news stories are selected.");
+			return;
+		}
+		else{
+			for(int i : selectionView.getSelectedNewsStories()){
+				viewDialog = new JDialog();
+				viewDialog.setTitle("Adding News Story");
+				addEditNewsStoryView = new AddEditNewsStoryView(newsDataBaseModel,newsDataBaseModel.getNewsStories().get(i));
+				addEditNewsStoryView.jbtAddEditNewsStory.addActionListener(new AddEditNewsStoryListener());
+				viewDialog.add(addEditNewsStoryView);
+			}
+		}
 	}
 	
 	private void sortNewsStories(){
@@ -164,7 +257,23 @@ public class NewsController {
 	}
 	
 	private void deleteNewsStories(){
+		if(0 == selectionView.getSelectedNewsStories().length){
+			JOptionPane.showMessageDialog(null, "No news stories are selected.");
+			return;
+		}
+		
+		int[] selectedIndices = selectionView.getSelectedNewsStories();
+		
+		for(int i = 0; i < selectedIndices.length; i++){
+			NewsStory toRemove = newsDataBaseModel.getNewsStoryListModel().get(selectedIndices[i]);
+			
+			toRemove.getNewsMaker1().removeNewsStory(toRemove);
+			toRemove.getNewsMaker2().removeNewsStory(toRemove);
+			
+			newsDataBaseModel.getNewsStoryListModel().remove(toRemove);
+		}		
 	}
+	
 	
 	private void deleteAllNewsStories(){
 		newsDataBaseModel.removeAllNewsStories();
@@ -323,41 +432,72 @@ public class NewsController {
 	}
 	
 	private class FileMenuListener implements ActionListener{
-		public void actionPerformed(ActionEvent actionEvent){
+		
+		public void actionPerformed(ActionEvent actionEvent){			
 			String command = actionEvent.getActionCommand();
 			if(command.equals("Load")){
-				
-				JFileChooser fileChooser = new JFileChooser();
-				
-				
+				loadNewsData();
 			}
 			else if(command.equals("Save")){
-				
+				saveNewsData();
 			}
 			else if(command.equals("Import")){
-				
+				importNoozStories();
 			}
 			else if(command.equals("Export")){
-				
+				exportNewsStories();
 			}
 		}
 	}
 
 	private class NewsMakerMenuListener implements ActionListener{
 		public void actionPerformed(ActionEvent actionEvent){
-			
+			String command = actionEvent.getActionCommand();
+			if(command.equals("Add Newsmaker")){
+				addNewsMaker();
+			}
+			else if(command.equals("Edit Newsmaker")){
+				editNewsMakers();
+			}
+			else if(command.equals("Delete Newsmaker")){
+				deleteNewsMakers();
+			}
+			else if(command.equals("Delete Newsmaker List")){
+				deleteNewsMakerList();
+			}
 		}
 	}
 
 	private class NewsStoryMenuListener implements ActionListener{
 		public void actionPerformed(ActionEvent actionEvent){
-			
+			String command = actionEvent.getActionCommand();
+			if(command.equals("Add News Story")){
+				addNewsStory();
+			}
+			else if(command.equals("Edit News Story")){
+				editNewsStories();
+			}
+			else if(command.equals("Sort News Stories")){
+				sortNewsStories();
+			}
+			else if(command.equals("Delete News Story")){
+				deleteNewsStories();
+			}
+			else if(command.equals("Delete All News Stories")){
+				deleteAllNewsStories();
+			}
 		}
 	}
 	
 	private class DisplayMenuListener implements ActionListener{
 		public void actionPerformed(ActionEvent actionEvent){
-			
+			String command = actionEvent.getActionCommand();
+			if(command.equals("Pie Chart")){
+				displayPieCharts();
+			}
+			else if(command.equals("Text")){
+				displayTextViews();
+			}
 		}
 	}
 	
