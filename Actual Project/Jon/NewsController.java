@@ -40,7 +40,63 @@ public class NewsController {
 	
 	private void saveNewsData(){}
 	
-	private void importNoozStories(){}
+	private void importNoozStories(){
+		boolean haveSources = false;
+		boolean haveTopics = false;
+		boolean haveSubjects = false;
+		boolean haveStories = false;
+
+		Map<String, String> newsSourceMap;
+		Map<String, String> newsTopicMap;
+		Map<String, String> newsSubjectMap;
+		String storiesFileName;
+
+		JFileChooser j = new JFileChooser();
+		
+		while(!(haveSources&&haveTopics&&haveSubjects)){
+			int returnVal = j.showOpenDialog(selectionView);
+			if(JFileChooser.APPROVE_OPTION == returnVal){					
+				String fileName = null;
+				try{
+					fileName = j.getSelectedFile().getCanonicalPath();
+				}
+				catch(IOException e){						
+				}
+
+				//https://docs.oracle.com/javase/tutorial/uiswing/components/dialog.html
+				JFrame frame = new JFrame();
+				String[] options = {"Source Codes","Topic Codes","Subject Codes"};
+				String fileType = (String)JOptionPane.showInputDialog(frame, "What kind of file did you choose?", 
+						"File Type", JOptionPane.QUESTION_MESSAGE, null, options, "Source Codes");
+				
+				if(fileType.equals("Source Codes")){
+					newsSourceMap = CodeFileProcessor.readCodeFile(fileName);
+					haveSources = true;
+				}
+				else if(fileType.equals("Topic Codes")){
+					newsTopicMap = CodeFileProcessor.readCodeFile(fileName);						
+					haveTopics = true;
+				}
+				else if(fileType.equals("Subject Codes")){
+					newsSubjectMap = CodeFileProcessor.readCodeFile(fileName);						
+					haveSubjects = true;
+				}
+			}
+
+			returnVal = j.showOpenDialog(selectionView);
+			if(JFileChooser.APPROVE_OPTION == returnVal){					
+				String fileName = null;
+				try{
+					fileName = j.getSelectedFile().getCanonicalPath();
+				}
+				catch(IOException e){						
+				}		
+				storiesFileName = fileName;
+			}
+		}
+		
+		newsDataBaseModel = NoozFileProcessor.readNoozFile(storiesFileName, newsSourceMap, newsTopicMap, newsSubjectMap);
+	}
 	
 	private void exportNewsStories(){}
 	
