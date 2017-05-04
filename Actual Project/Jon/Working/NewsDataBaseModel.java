@@ -124,7 +124,7 @@ public class NewsDataBaseModel implements Serializable{
 		this.newsMakerListModel = newsMakerListModel;
 	}
 	
-	public void addNewsMakerListModel(NewsMakerModel newsMakerModel){
+	public void addNewsMakerModel(NewsMakerModel newsMakerModel){
 		this.newsMakerListModel.add(newsMakerModel);
 	}
 	
