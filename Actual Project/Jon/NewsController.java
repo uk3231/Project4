@@ -48,7 +48,32 @@ public class NewsController {
 	
 	private void editNewsMakers(){}
 	
-	private void deleteNewsMakers(){}
+	private void deleteNewsMakers(){
+		if(0 == selectionView.getSelectedNewsMakers().length){
+			JOptionPane.showMessageDialog(null, "No news makers are selected.");
+			return;
+		}
+		
+		// get the stories that were selected for the newsmaker
+		int[] selectedIndices = editNewsMakerView.getSelectedNewsStoryIndices();
+		
+		// loops through the list of indices and gets the associated story
+		for(int i = 0; i < selectedIndices.length; i++){
+			NewsStory newsStory = editNewsMakerView.newsMakerModel.getNewsStoryListModel().get(selectedIndices[i]);
+			
+			// if the first newsmaker is 
+			if(newsStory.getNewsMaker1().equals(editNewsMakerView.newsMakerModel)){
+				newsStory.getNewsMaker1().removeNewsStory(newsStory);
+				newsStory.setNewsMaker1(newsDataBaseModel.none);
+				newsDataBaseModel.none.addNewsStory(newsStory);
+			}
+			else if(newsStory.getNewsMaker2().equals(editNewsMakerView.newsMakerModel)){
+				newsStory.getNewsMaker2().removeNewsStory(newsStory);
+				newsStory.setNewsMaker2(newsDataBaseModel.none);
+				newsDataBaseModel.none.addNewsStory(newsStory);
+			}
+		}
+	}
 	
 	private void deleteNewsMakerList(){}
 	
@@ -190,19 +215,22 @@ public class NewsController {
 		public void actionPerformed(ActionEvent actionEvent){
 			// get the stories that were selected for the newsmaker
 			int[] selectedIndicies = editNewsMakerView.getSelectedNewsStoryIndices();
-			
-			// loops through the list of indicies sand gets the associated story
-			for(int i = 0; i < selectedIndicies.length; i++){
-				NewsStory newsStory = editNewsMakerView.newsMakerModel.getNewsStoryListModel().get(i);
-				
+
+			// get the stories that were selected for the newsmaker
+			int[] selectedIndices = editNewsMakerView.getSelectedNewsStoryIndices();
+
+			// loops through the list of indices and gets the associated story
+			for(int i = 0; i < selectedIndices.length; i++){
+				NewsStory newsStory = editNewsMakerView.newsMakerModel.getNewsStoryListModel().get(selectedIndices[i]);
+
 				// if the first newsmaker is 
-				if(newsStory.getNewsMaker1.equals(editNewsMakerView.newsMakerModel)){
-					newsStory.getNewsMaker1.remove(newsStory);
+				if(newsStory.getNewsMaker1().equals(editNewsMakerView.newsMakerModel)){
+					newsStory.getNewsMaker1().removeNewsStory(newsStory);
 					newsStory.setNewsMaker1(newsDataBaseModel.none);
 					newsDataBaseModel.none.addNewsStory(newsStory);
 				}
-				else if(newsStory.getNewsMaker2.equals(editNewsMakerView.newsMakerModel)){
-					newsStory.getNewsMaker2.remove(newsStory);
+				else if(newsStory.getNewsMaker2().equals(editNewsMakerView.newsMakerModel)){
+					newsStory.getNewsMaker2().removeNewsStory(newsStory);
 					newsStory.setNewsMaker2(newsDataBaseModel.none);
 					newsDataBaseModel.none.addNewsStory(newsStory);
 				}
