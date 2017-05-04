@@ -44,6 +44,8 @@ public class TextView implements ActionListener{
 			List<NewsMedia> newsMedia, 
 			List<SortCriterion> sortCriteria){
 		
+		constructNewsStoriesAndSummary();
+
 		// makes the jframe
 		jfText = new JFrame(constructTitle());
 		
