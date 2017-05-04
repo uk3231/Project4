@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * @author Uday Kohli, Jon Kunjummen, Dr. Hougen
+ * @author Uday Kohli, Jon  Kunjummen, Dr. Hougen
  * 
  * Jon did the stub code, Uday wrote the methods
  *
@@ -37,20 +37,28 @@ public class NewsMakerModel implements Serializable {
 		}
 
 		public void addNewsStory(NewsStory newsStory) {
-			// if its not already there, add it
-			if(! newsStoryListModel.contains(newsStory)){
-				this.newsStoryListModel.add(newsStory);
-
+			// checks that the story is relevant (story references the newsMaker)
+			if(newsStory.getNewsMaker1.equals(this) || newsStory.getNewsMaker2.equals(this)){
+				try{
+					this.newsStoryListModel.add(newsStory);
+					// catches an illegal argument exception if there is a duplicate story
+				}catch(IllegalArgumentException e){
+					// and rethrows the illegal argument exception
+					throw new IllegalArgumentException();
+				}
 				// inform the listener of the change
 				processEvent(new ActionEvent(this, 
 						ActionEvent.ACTION_PERFORMED, 
-						"Added a News Story"));
+						"Modified News Maker"));
 			}
-
+			// if the story doesnt have the newsMaker, throw an exception
+			else{
+				throw new IllegalArgumentException("Story Not Relevant");
+			}
 		}
 
 		public void setName(String name){
-			
+
 			// update name
 			if(!this.name.equals(name)){
 				this.name = name;
@@ -58,7 +66,7 @@ public class NewsMakerModel implements Serializable {
 				// inform action listeners of the change 
 				processEvent(new ActionEvent(this, 
 						ActionEvent.ACTION_PERFORMED, 
-						"Changed Name of News Maker"));
+						"Modified News Maker"));
 			}
 		}
 
@@ -69,7 +77,7 @@ public class NewsMakerModel implements Serializable {
 			// inform action listeners of the change
 			processEvent(new ActionEvent(this,
 					ActionEvent.ACTION_PERFORMED,
-					"Changed news story list model"));
+					"Modified News Story List"));
 		}
 		
 		public void removeNewsStory(NewsStory newsStory){
@@ -81,7 +89,7 @@ public class NewsMakerModel implements Serializable {
 				// inform action listeners of the change
 				processEvent(new ActionEvent(this, 
 						 ActionEvent.ACTION_PERFORMED, 
-						 "Removed News Story"));
+						 "Modified News Maker"));
 			}
 		}		
 
@@ -130,4 +138,3 @@ public class NewsMakerModel implements Serializable {
 		}
 
 }
-
