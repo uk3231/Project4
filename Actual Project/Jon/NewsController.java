@@ -44,7 +44,24 @@ public class NewsController {
 	
 	private void exportNewsStories(){}
 	
-	private void addNewsMaker(){}
+	//https://docs.oracle.com/javase/tutorial/uiswing/components/dialog.html
+	private void addNewsMaker(){
+		JFrame frame = new JFrame();
+		String name = (String)JOptionPane.showInputDialog(frame, "Enter the news maker name.", 
+				"News Maker Name", JOptionPane.QUESTION_MESSAGE, null, null,"");	
+		NewsMakerModel newsMakerModel = new NewsMakerModel(name);
+		if(!newsDataBaseModel.containsNewsMakerModel(newsMakerModel)){
+			newsDataBaseModel.addNewsMakerModel(newsMakerModel);
+		}
+		else{
+			int toReplace = JOptionPane.showConfirmDialog(frame, "Would you like to replace"
+					+ "the existing news maker of this name?", "News Maker Already Exists",
+					JOptionPane.YES_NO_OPTION);
+			if(JOptionPane.YES_OPTION == toReplace){
+				newsDataBaseModel.replaceNewsMakerModel(newsMakerModel);
+			}
+		}
+	}
 	
 	private void editNewsMakers(){}
 	
