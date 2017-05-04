@@ -102,7 +102,15 @@ public class NewsMakerListModel implements Serializable {
 	}
 	
 	public void removeAllNewsMakers(){
+		for(int i = 0; i<this.newsMakerDefaultListModel.size(); ++i){
+			NewsStoryListModel storyList = this.newsMakerDefaultListModel.get(i).getNewsStoryListModel();
+			for(int j = 0; j<storyList.size(); ++j){
+				storyList.get(j).setNewsMaker1(new NewsMakerModel());
+				storyList.get(j).setNewsMaker2(new NewsMakerModel());
+			}
+		}
 		this.newsMakerDefaultListModel.clear();
+		this.newsMakerDefaultListModel.addElement(new NewsMakerModel());
 	}
 	
 	public void setNewsMakersFromNewsMakerList(NewsMakerListModel newsMakerListModel){
@@ -111,13 +119,19 @@ public class NewsMakerListModel implements Serializable {
 	
 	public void sort(){
 		DefaultListModel<NewsMakerModel> sorted = new DefaultListModel<NewsMakerModel>();
-		for(int i = 0; i<this.newsMakerDefaultListModel.size(); ++i){
+		sorted.addElement(this.newsMakerDefaultListModel.get(0));
+		for(int i = 1; i<this.newsMakerDefaultListModel.size(); ++i){
 			for(int j = 0; j<=i; ++j){
-				if(this.newsMakerDefaultListModel.get(i).compareTo(sorted.get(j))<0){
+				//Take out these two
+				if(j==i){
+					sorted.addElement(this.newsMakerDefaultListModel.get(i));
+				}
+				else if(this.newsMakerDefaultListModel.get(i).compareTo(sorted.get(j))<0){
 					sorted.add(j, this.newsMakerDefaultListModel.get(i));
 					break;
 				}
 			}
 		}
-	}		
+		this.newsMakerDefaultListModel = sorted;
+	}
 }
