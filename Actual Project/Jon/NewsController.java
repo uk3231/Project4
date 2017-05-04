@@ -71,24 +71,27 @@ public class NewsController {
 			return;
 		}
 		
-		// get the stories that were selected for the newsmaker
-		int[] selectedIndices = editNewsMakerView.getSelectedNewsStoryIndices();
+		int[] selectedIndices = selectionView.getSelectedNewsMakers();
 		
-		// loops through the list of indices and gets the associated story
 		for(int i = 0; i < selectedIndices.length; i++){
-			NewsStory newsStory = editNewsMakerView.newsMakerModel.getNewsStoryListModel().get(selectedIndices[i]);
+			NewsMakerModel toRemove = newsDataBaseModel.getNewsMakerListModel().get(selectedIndices[i]);
+			NewsStoryListModel toBeCleared = toRemove.getNewsStoryListModel();
 			
-			// if the first newsmaker is 
-			if(newsStory.getNewsMaker1().equals(editNewsMakerView.newsMakerModel)){
-				newsStory.getNewsMaker1().removeNewsStory(newsStory);
-				newsStory.setNewsMaker1(newsDataBaseModel.none);
-				newsDataBaseModel.none.addNewsStory(newsStory);
+			for(int j = 0; j<toBeCleared.size(); ++j){
+				NewsStory newsStory = toBeCleared.get(j);
+				// if the first newsmaker is 
+				if(newsStory.getNewsMaker1().equals(editNewsMakerView.newsMakerModel)){
+					newsStory.getNewsMaker1().removeNewsStory(newsStory);
+					newsStory.setNewsMaker1(newsDataBaseModel.none);
+					newsDataBaseModel.none.addNewsStory(newsStory);
+				}
+				else if(newsStory.getNewsMaker2().equals(editNewsMakerView.newsMakerModel)){
+					newsStory.getNewsMaker2().removeNewsStory(newsStory);
+					newsStory.setNewsMaker2(newsDataBaseModel.none);
+					newsDataBaseModel.none.addNewsStory(newsStory);
+				}
 			}
-			else if(newsStory.getNewsMaker2().equals(editNewsMakerView.newsMakerModel)){
-				newsStory.getNewsMaker2().removeNewsStory(newsStory);
-				newsStory.setNewsMaker2(newsDataBaseModel.none);
-				newsDataBaseModel.none.addNewsStory(newsStory);
-			}
+			newsDataBaseModel.getNewsMakerListModel().remove(toRemove);
 		}
 	}
 	
