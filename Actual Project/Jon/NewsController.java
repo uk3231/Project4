@@ -413,6 +413,12 @@ public class NewsController {
     					null, // icon
     					options, // choices
     					options[0]); // initialSelectionValue
+		    	// if they click cancel, selection is null
+			// the method should return and move on the next one
+			if(selection == null){
+				return;
+			}
+		    
     			// adds to the selected criteria list
     			selectedSortCriteria.add(selection);
     			// removes from the options list
