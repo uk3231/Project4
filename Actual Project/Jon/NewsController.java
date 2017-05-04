@@ -224,7 +224,41 @@ public class NewsController {
 	
 	public class EditNewsMakerNameListener implements ActionListener{
 		public void actionPerformed(ActionEvent actionEvent){
+			String name = editNewsMakerView.jtfName.getText();
 			
+			// if we don't already have a newsmaker  with this name, change its name
+			// and resort
+			if(!newsDataBaseModel.containsNewsMakerModel(new NewsMakerModel(name))){
+				editNewsMakerView.newsMakerModel.setName(name);
+				newsDataBaseModel.getNewsMakerListModel().sort();
+			}
+			// if it is already there, then ask if it should be replaced
+			else{
+				int toReplace = JOptionPane.showConfirmDialog(null, "Would you like to replace" // TODO figure out the frame
+						+ "the existing news maker of this name?", "News Maker Already Exists",
+						JOptionPane.YES_NO_OPTION);
+				if(JOptionPane.YES_OPTION == toReplace){
+					NewsMakerModel oldNewsMaker = newsDataBaseModel.getNewsMakerListModel().get(new NewsMakerModel(name));
+					for(int i; i < oldNewsMaker.getNewsStoryListModel().size(); i++){
+						NewsStory newsStory = oldNewsMaker.getNewsStoryListModel().get(i);
+						
+						// if the first newsmaker is the same
+						if(newsStory.getNewsMaker1.equals(editNewsMakerView.newsMakerModel)){
+							newsStory.getNewsMaker1.remove(newsStory);
+							newsStory.setNewsMaker1(newsDataBaseModel.none);
+							newsDataBaseModel.none.addNewsStory(newsStory);
+						}
+						else if(newsStory.getNewsMaker2.equals(editNewsMakerView.newsMakerModel)){
+							newsStory.getNewsMaker2.remove(newsStory);
+							newsStory.setNewsMaker2(newsDataBaseModel.none);
+							newsDataBaseModel.none.addNewsStory(newsStory);
+						}
+					}
+					newsDataBaseModel.getNewsMakerListModel().remove(oldNewsMaker);
+					
+					editNewsMakerView.newsMakerModel.setName(name);
+				}
+			}
 		}
 	}
 	
