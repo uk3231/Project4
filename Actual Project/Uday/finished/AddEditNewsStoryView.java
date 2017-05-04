@@ -192,6 +192,7 @@ public class AddEditNewsStoryView extends JPanel{
 			// makes panel for button
 			jplAddEditNewsStory = new JPanel(new GridLayout(1, 0, 5, 5));
 			jbtAddEditNewsStory = new JButton("Add News Story");
+			jbtAddEditNewsStory.setActionCommand("Add News Story");
 			jplAddEditNewsStory.add(jbtAddEditNewsStory);
 
 			// Set up the content pane and add all the panels to it.
@@ -205,7 +206,6 @@ public class AddEditNewsStoryView extends JPanel{
 			add(jplNewsStoryLength);
 			add(jplNewsStoryWhen);
 			add(jplAddEditNewsStory);	
-			setVisible(true);
 			
 		} else{
 			// makes the panel for news story type, and adds label and combo box
@@ -325,6 +325,7 @@ public class AddEditNewsStoryView extends JPanel{
 			// makes panel for button
 			jplAddEditNewsStory = new JPanel(new GridLayout(1, 0, 5, 5));
 			jbtAddEditNewsStory = new JButton("Edit News Story");
+			jbtAddEditNewsStory.setActionCommand("Edit News Story");
 			jplAddEditNewsStory.add(jbtAddEditNewsStory);
 
 			// Set up the content pane and add all the panels to it.
@@ -338,9 +339,6 @@ public class AddEditNewsStoryView extends JPanel{
 			add(jplNewsStoryLength);
 			add(jplNewsStoryWhen);
 			add(jplAddEditNewsStory);	
-			setVisible(true);
 		}
 	}
 }
-
-
