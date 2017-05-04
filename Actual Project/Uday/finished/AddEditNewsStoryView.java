@@ -272,7 +272,7 @@ public class AddEditNewsStoryView extends JPanel{
 			jplNewsStoryLength.add(jlbNewsStoryLength);
 			jftfNewsStoryLength.setEditable(true);
 			// sets the text to be the same as the news story's length
-			jftfNewsStoryLenght.setText(newsStory.getLength()); // TODO does this need to be in word equivalents
+			jftfNewsStoryLength.setText(((Integer)newsStory.getLength()).toString()); // TODO does this need to be in word equivalents
 			jplNewsStoryLength.add(jftfNewsStoryLength);
 
 			// makes panel for year, populates array of Integers, adds combo box and label
