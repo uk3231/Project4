@@ -188,7 +188,25 @@ public class NewsController {
 	
 	public class RemoveNewsMakerFromNewsStoriesListener implements ActionListener{
 		public void actionPerformed(ActionEvent actionEvent){
+			// get the stories that were selected for the newsmaker
+			int[] selectedIndicies = editNewsMakerView.getSelectedNewsStoryIndices();
 			
+			// loops through the list of indicies sand gets the associated story
+			for(int i = 0; i < selectedIndicies.length; i++){
+				NewsStory newsStory = editNewsMakerView.newsMakerModel.getNewsStoryListModel().get(i);
+				
+				// if the first newsmaker is 
+				if(newsStory.getNewsMaker1.equals(editNewsMakerView.newsMakerModel)){
+					newsStory.getNewsMaker1.remove(newsStory);
+					newsStory.setNewsMaker1(newsDataBaseModel.none);
+					newsDataBaseModel.none.addNewsStory(newsStory);
+				}
+				else if(newsStory.getNewsMaker2.equals(editNewsMakerView.newsMakerModel)){
+					newsStory.getNewsMaker2.remove(newsStory);
+					newsStory.setNewsMaker2(newsDataBaseModel.none);
+					newsDataBaseModel.none.addNewsStory(newsStory);
+				}
+			}
 		}
 	}
 	
