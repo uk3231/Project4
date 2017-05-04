@@ -254,6 +254,105 @@ public class NewsController {
 	
 	private void sortNewsStories(){
 		
+		// ask for sort criteria
+        // makes a list of selected options (originally empty)
+        // and a list of possible options (start with 5)
+        List<SortCriterion> selectedSortCriteria = new ArrayList<SortCriterion>();
+        List<SortCriterion> optionsList = new ArrayList<SortCriterion>(5);
+    	optionsList.add(SortCriterion.SOURCE);
+    	optionsList.add(SortCriterion.TOPIC);
+    	optionsList.add(SortCriterion.SUBJECT);
+    	optionsList.add(SortCriterion.LENGTH);
+    	optionsList.add(SortCriterion.DATE_TIME);
+    	
+    	// loop through 4 times to get first 4 sort criteria
+        for(int n = 0; n < 4; n++){
+        	// I got this code from http://stackoverflow.com/questions/5374311/convert-arrayliststring-to-string-array
+        	// turn the array list to an array so that it can be used as options in joptionpane
+        	SortCriterion[] options = new SortCriterion[optionsList.size()];
+        	options = optionsList.toArray(options);
+        	//message should change every time (primary, secondary, etc)
+        	String message = "Select ";
+        	
+        	if(n==0){
+        		message+= "primary ";
+        	}else if(n == 1){
+        		message+= "secondary ";
+        	}else if(n == 2){
+        		message+= "tertiary ";
+        	}else if(n == 3){
+        		message+= "quaternary ";
+        	}
+        	
+        	message += "sort criterion:";
+        	
+        	//TODO decide what frame to use
+        	// makes the joptionpane
+			SortCriterion selection = (SortCriterion)JOptionPane.showInputDialog(null, // the parent component
+					message, // message
+					"Sort Criterion", // title
+					JOptionPane.QUESTION_MESSAGE, // message type
+					null, // icon
+					options, // choices
+					options[0]); // initialSelectionValue
+			
+			// if they click cancel, selection is null
+			// the method should return which would exit 
+			// this method without sorting the list
+			if(selection == null){
+				return;
+			}
+			
+			// adds to the selected criteria list
+			selectedSortCriteria.add(selection);
+			// removes from the options list
+			optionsList.remove(selection);
+			
+			// add the fifth option after 4 have been chosen
+			if(optionsList.size() == 1){
+				selectedSortCriteria.add(optionsList.get(0));
+			}
+        }
+        
+        // make the list to sort
+        DefaultListModel<NewsStory> newsStories = newsDataBaseModel.getNewsStories();
+        List<NewsStory> newsStoryArrayList = new ArrayList<NewsStory>(newsStories.getSize());
+        for(int i = 0; i < newsStories.size(); i++){
+        	newsStoryArrayList.add(newsStories.get(i));
+        }
+        // Sort the list based on the user's sort criteria
+        // Start with tertiary sort criterion and work to primary
+        if (selectedSortCriteria.size() != 5) {
+        	throw new IllegalArgumentException(
+        			"createListOfNewsStoriesForNewsmaker called with illegal sort criteria list size: "
+        					+ selectedSortCriteria.size());
+        }
+        for (int i = selectedSortCriteria.size() - 1; i >= 0; i--) {
+        	if (selectedSortCriteria.get(i).equals(SortCriterion.TOPIC)) {
+        		Collections.sort(newsStoryArrayList);
+        	} else if (selectedSortCriteria.get(i).equals(SortCriterion.LENGTH)) {
+        		Collections.sort(newsStoryArrayList, LengthComparator.LENGTH_COMPARATOR);
+        	} else if (selectedSortCriteria.get(i).equals(SortCriterion.DATE_TIME)) {
+        		Collections.sort(newsStoryArrayList, DateComparator.DATE_COMPARATOR);
+        	} else if (selectedSortCriteria.get(i).equals(SortCriterion.SOURCE)) {
+        		Collections.sort(newsStoryArrayList, SourceComparator.SOURCE_COMPARATOR);
+        	} else if (selectedSortCriteria.get(i).equals(SortCriterion.SUBJECT)) {
+        		Collections.sort(newsStoryArrayList, SubjectComparator.SUBJECT_COMPARATOR);
+        	}else {
+        		throw new IllegalArgumentException(
+        				"createListOfNewsStoriesForNewsmaker called with illegal sort criterion: " + selectedSortCriteria.get(i));
+        	}
+        }
+        
+        // now, newsstoryarraylist should be sorted
+        // next, turn it into a news story array so that we can use
+        // the setNewsStoryListModelFromArray method
+        
+        NewsStory[] newsStoryArray = new NewsStory[newsStoryArrayList.size()];
+        newsStoryArray = newsStoryArrayList.toArray(newsStoryArray);
+        
+        // now we can update the model
+        newsDataBaseModel.setNewsStoryListModelFromArray(newsStoryArray);
 	}
 	
 	private void deleteNewsStories(){
