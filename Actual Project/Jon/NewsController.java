@@ -193,8 +193,91 @@ public class NewsController {
 	}
 	
 	public class AddEditNewsStoryListener implements ActionListener{
-		public void actionPerformed(ActionEvent actionEvent){
+		public void actionPerformed(ActionEvent actionEvent) throws IllegalArgumentException {
+			// get data from the panel after they push the button
+			NewsMedia newsMedia = (NewsMedia) addEditNewsStoryView.jcbNewsStoryType.getSelectedItem();
+			String source = (String) addEditNewsStoryView.jcbNewsStorySource.getSelectedItem();
+			String topic = (String) addEditNewsStoryView.jcbNewsStoryTopic.getSelectedItem();
+			String subject = (String) addEditNewsStoryView.jcbNewsStorySubject.getSelectedItem();
+			String newsMaker1Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker1.getSelectedItem();
+			String newsMaker2Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker2.getSelectedItem();
 			
+			// error checking, if the names are the same, throw illegal arugment exception
+			if(newsMaker1Name.equals(newsMaker2Name) && !newsMaker1Name.equals("None")){
+				throw new IllegalArgumentException();
+			}
+			
+			int length = ((Number) addEditNewsStoryView.jftfNewsStoryLength.getValue()).intValue();
+			int year = (Integer)addEditNewsStoryView.jcbNewsStoryYear.getSelectedItem();
+			Month month = (Month) addEditNewsStoryView.jcbNewsStoryMonth.getSelectedItem();
+			int day = (Integer) addEditNewsStoryView.jcbNewsStoryDay.getSelectedItem();
+
+			/*
+			 * Makes the newsmakers if they are not already made
+			 * or uses the copy already in the list
+			 * The first news maker is constructed based on the first news maker
+			 * name read.
+			 */
+			NewsMakerModel newsMakerModel1 = new NewsMakerModel(newsMaker1Name);
+			// If the news maker is on the list, use the copy already on the list
+			if (newsDataBaseModel.containsNewsMakerModel(newsMakerModel1)) {
+				newsMakerModel1 = newsDataBaseModel.getNewsMakerListModel.get(newsMakerModel1);
+			}
+			// Otherwise, add the new news maker to the list
+			else {
+				newsDataBaseModel.addNewsMakerModel(newsMakerModel1);
+			}
+
+			/*
+			 * The second news maker is constructed based on the second news maker
+			 * name read.
+			 */
+			NewsMakerModel newsMakerModel2 = new NewsMakerModel(newsMaker2Name);
+			// If the news maker is on the list, use the copy already on the list
+			if (newsDataBaseModel.containsNewsMakerModel(newsMakerModel2)) {
+				newsMakerModel2 = newsDataBaseModel.getNewsMakerListModel.get(newsMakerModel2);
+			}
+			// Otherwise, add the new news maker to the list
+			else {
+				newsDataBaseModel.addNewsMakerModel(newsMakerModel2);
+			}
+				
+			
+			// make the localDate
+			LocalDate date = LocalDate.of(year, month, day);
+			
+			// if we are adding a story, we construct a new story
+			// TODO check if the constructor is right
+			if(actionEvent.getActionCommand().equals("Add News Story")){
+				NewsStory newsStory = new NewsStory(date, 
+									source,
+									length,
+									subject,
+									newsMakerModel1,
+									newsMakerModel2);
+				newsMakerModel1.addNewsStory(newsStory);
+				newsMakerModel2.addNewsStory(newsStory);
+				newsDataBaseModel.addNewsStory(newsStory);
+			} 
+			// otherwise, we should edit the fields of the story
+			else if(actionEvent.getActionCommand().equals("Edit News Story")){
+				if(editedNewsStory != null){
+					// first, remove the news stories from the original newsmakers
+					editedNewsStory.getNewsMaker1().removeNewsStory(editedNewsStory);
+					editedNewsStory.getNewsMaker2().removeNewsStory(editedNewsStory);
+					
+					// change the other fields
+					editedNewsStory.setDate(date);
+					editedNewsStory.setSource(source);
+					editedNewsStory.setLength(length);
+					editedNewsStory.setTopic(topic);
+					editedNewsStory.setSubject(subject);
+					editedNewsStory.setNewsMaker1(newsMakerModel1);
+					editedNewsStory.setNewsMaker2(newsMakerModel2);
+				}
+			}
+			
+			viewDialog.dispose();
 		}
 	}
 	
