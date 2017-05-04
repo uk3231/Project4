@@ -416,7 +416,7 @@ public class NewsController {
 		    	// if they click cancel, selection is null
 			// the method should return and move on the next one
 			if(selection == null){
-				return;
+				break;
 			}
 		    
     			// adds to the selected criteria list
@@ -428,6 +428,12 @@ public class NewsController {
     			if(optionsList.size() == 1){
     				selectedSortCriteria.add(optionsList.get(0));
     			}
+            }
+	    // if theres a null value or the size is not 5, the user
+            // clicked cancel. this means we should continue to the next
+            // newsmaker
+            if(selectedSortCriteria.contains(null) || (selectedSortCriteria.size()<5)){
+            	continue;
             }
             // make the textview
             TextView textView = new TextView(newsMaker, selectedMediaTypes, selectedSortCriteria);
