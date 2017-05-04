@@ -239,7 +239,87 @@ public class NewsController {
 	}	
 	
 	private void displayTextViews(){
-		
+		int[] selectedNewsMakerIndices = selectionView.getSelectedNewsMakers();
+		for (int i = 0; i < selectedNewsMakerIndices.length; i++){
+			NewsMakerModel newsMaker = newsDataBaseModel.getNewsMakerListModel().get(selectedNewsMakerIndices[i]);
+			
+			// Get media types using MediaTypeSelectionView.
+            this.selectedMediaTypes = null;
+            this.mediaTypeSelectionView = new MediaTypeSelectionView();
+            MediaTypeSelectionListener mediaTypeSelectionListener = new MediaTypeSelectionListener();
+            this.mediaTypeSelectionView.jbOkay.addActionListener(mediaTypeSelectionListener);
+            this.mediaTypeSelectionView.jbCancel.addActionListener(mediaTypeSelectionListener);
+
+            // TODO decide which frame to use
+            this.viewDialog = new JDialog(selectionView, newsMaker.getName(), true);
+            this.viewDialog.add(mediaTypeSelectionView);
+            this.viewDialog.setResizable(false);
+            this.viewDialog.pack();
+            this.viewDialog.setVisible(true);
+
+            // If no media types were selected, go on to next news maker.
+            if (null == this.selectedMediaTypes) {
+                continue;
+            }
+            
+            //TODO Jon, this could be its own method, especially if you have to use it elsewhere
+			// ask for sort criteria
+            // makes a list of selected options (originally empty)
+            // and a list of possible options (start with 5)
+            List<SortCriterion> selectedSortCriteria = new ArrayList<SortCriterion>();
+            List<SortCriterion> optionsList = new ArrayList<SortCriterion>(5);
+        	optionsList.add(SortCriterion.SOURCE);
+        	optionsList.add(SortCriterion.TOPIC);
+        	optionsList.add(SortCriterion.SUBJECT);
+        	optionsList.add(SortCriterion.LENGTH);
+        	optionsList.add(SortCriterion.DATE_TIME);
+        	
+        	// loop through 4 times to get first 4 sort criteria
+            for(int n = 0; n < 4; n++){
+            	// I got this code from http://stackoverflow.com/questions/5374311/convert-arrayliststring-to-string-array
+            	// turn the array list to an array so that it can be used as options in joptionpane
+            	SortCriterion[] options = new SortCriterion[optionsList.size()];
+            	options = optionsList.toArray(options);
+            	//message should change every time (primary, secondary, etc)
+            	String message = "Select ";
+            	
+            	if(n==0){
+            		message+= "primary ";
+            	}else if(n == 1){
+            		message+= "secondary ";
+            	}else if(n == 2){
+            		message+= "tertiary ";
+            	}else if(n == 3){
+            		message+= "quaternary ";
+            	}
+            	
+            	message += "sort criterion:";
+            	
+            	//TODO decide what frame to use
+            	// makes the joptionpane
+    			SortCriterion selection = (SortCriterion)JOptionPane.showInputDialog(null, // the parent component
+    					message, // message
+    					"Sort Criterion", // title
+    					JOptionPane.QUESTION_MESSAGE, // message type
+    					null, // icon
+    					options, // choices
+    					options[0]); // initialSelectionValue
+    			// adds to the selected criteria list
+    			selectedSortCriteria.add(selection);
+    			// removes from the options list
+    			optionsList.remove(selection);
+    			
+    			// add the fifth option after 4 have been chosen
+    			if(optionsList.size() == 1){
+    				selectedSortCriteria.add(optionsList.get(0));
+    			}
+            }
+            // make the textview
+            TextView textView = new TextView(newsMaker, selectedMediaTypes, selectedSortCriteria);
+            
+            // register text view as actionlistener on the model
+            newsMaker.addActionListener(textView);
+		}
 	}
 	
 	private class FileMenuListener implements ActionListener{
