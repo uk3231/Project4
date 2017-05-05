@@ -1,4 +1,4 @@
-import java.awt.GridLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -44,6 +44,10 @@ public class TextView implements ActionListener{
 			List<NewsMedia> newsMedia, 
 			List<SortCriterion> sortCriteria){
 		
+		this.newsMakerModel = newsMakerModel;
+		this.newsMedia = newsMedia;
+		this.sortCriteria = sortCriteria;
+		
 		constructNewsStoriesAndSummary();
 
 		// makes the jframe
@@ -53,19 +57,14 @@ public class TextView implements ActionListener{
 		jtaNewsStoryList = new JTextArea(listOfStories);
 		
 		// makes the scroll pane and adds the list of stories
-		jspNewsStoryList = new JScrollPane();
-		jspNewsStoryList.add(jtaNewsStoryList);
+		jspNewsStoryList = new JScrollPane(jtaNewsStoryList);
 		
 		// makes text area for summaryLine
 		jtaSummaryLine = new JTextArea(summaryLine);
 		
-		// makes a jpanel to add the text areas
-		// not sure if that was necessary, but I did it anyway
-		JPanel jpl = new JPanel(new GridLayout(0, 1, 5, 5));
-		jpl.add(jspNewsStoryList);
-		jpl.add(jtaSummaryLine);
+		jfText.add(jspNewsStoryList, BorderLayout.CENTER);
+		jfText.add(jtaSummaryLine, BorderLayout.SOUTH);
 		
-		jfText.add(jpl);
 		jfText.pack(); // not sure if this is needed. 
 		jfText.setVisible(true);
 		
@@ -136,21 +135,21 @@ public class TextView implements ActionListener{
 
 		// Sort the list based on the user's sort criteria
 		// Start with tertiary sort criterion and work to primary
-		if (sortCriteria.length != 5) {
+		if (sortCriteria.size() != 5) {
 			throw new IllegalArgumentException(
 					"createListOfNewsStoriesForNewsmaker called with illegal sort criteria list size: "
-							+ sortCriteria.length);
+							+ sortCriteria.size());
 		}
-		for (int i = sortCriteria.length - 1; i >= 0; i--) {
-			if (sortCriteria.get(i).equals(SortCriteria.TOPIC)) {
+		for (int i = sortCriteria.size() - 1; i >= 0; i--) {
+			if (sortCriteria.get(i).equals(SortCriterion.TOPIC)) {
 				Collections.sort(newsStories);
-			} else if (sortCriteria.get(i).equals(SortCriteria.LENGTH)) {
+			} else if (sortCriteria.get(i).equals(SortCriterion.LENGTH)) {
 				Collections.sort(newsStories, LengthComparator.LENGTH_COMPARATOR);
-			} else if (sortCriteria.get(i).equals(SortCriteria.DATE_TIME)) {
+			} else if (sortCriteria.get(i).equals(SortCriterion.DATE_TIME)) {
 				Collections.sort(newsStories, DateComparator.DATE_COMPARATOR);
-			} else if (sortCriteria.get(i).equals(SortCriteria.SOURCE)) {
+			} else if (sortCriteria.get(i).equals(SortCriterion.SOURCE)) {
 				Collections.sort(newsStories, SourceComparator.SOURCE_COMPARATOR);
-			} else if (sortCriteria.get(i).equals(SortCriteria.SUBJECT)) {
+			} else if (sortCriteria.get(i).equals(SortCriterion.SUBJECT)) {
 				Collections.sort(newsStories, SubjectComparator.SUBJECT_COMPARATOR);
 			}else {
 				throw new IllegalArgumentException(
@@ -191,21 +190,22 @@ public class TextView implements ActionListener{
 		}
 
 		// Construct the summary line
+		summaryLine = "";
 		// If the type doesn't include TV, use words
 		if (!newsMedia.contains(NewsMedia.TV)) {
-			listOfStories += "Number of Stories: " + newsStories.size() + "; Number of Sources: "
+			summaryLine += "Number of Stories: " + newsStories.size() + "; Number of Sources: "
 					+ distinctNewsSourceNames.size() + "; Number of Words: " + totalLength + "; Number of Topics: "
 					+ distinctTopics.size() + "; Number of Subjects: " + distinctSubjects.size();
 		}
 		// If the type is TV news, use seconds (from length)
 		else if (newsMedia.contains(NewsMedia.TV) && (newsMedia.size() == 1)) {
-			listOfStories += "Number of Stories: " + newsStories.size() + "; Number of Sources: "
+			summaryLine += "Number of Stories: " + newsStories.size() + "; Number of Sources: "
 					+ distinctNewsSourceNames.size() + "; Seconds: " + totalLength + "; Number of Topics: "
 					+ distinctTopics.size() + "; Number of Subjects: " + distinctSubjects.size();
 		}
 		// If the type is mixed, use words as common unit
 		else {
-			listOfStories += "Number of Stories: " + newsStories.size() + "; Number of Sources: "
+			summaryLine += "Number of Stories: " + newsStories.size() + "; Number of Sources: "
 					+ distinctNewsSourceNames.size() + "; Number of Word Equivalents: " + totalLength
 					+ "; Number of Topics: " + distinctTopics.size() + "; Number of Subjects: "
 					+ distinctSubjects.size();
@@ -231,13 +231,17 @@ public class TextView implements ActionListener{
 		}
 		// remove the last space and comma
 		title = title.substring(0, title.length() - 2);
+		return title;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent actionEvent) {
+		System.out.println("action performed in textviews");
 		constructNewsStoriesAndSummary();
 		constructTitle();
 		
+		// http://stackoverflow.com/questions/3718435/refresh-jframe-after-adding-new-components
+		jfText.revalidate();
 		jfText.repaint();
 	}
 }
