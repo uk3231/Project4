@@ -50,7 +50,7 @@ public class EditNewsMakerView extends JPanel implements ActionListener{
 		if(!(this.newsMakerModel == null)){
 			this.newsMakerModel.addActionListener(this);
 		}
-		newsDataBaseModel = newsDataBaseModel; // TODO i cant't figure out why i need this
+		this.newsDataBaseModel = newsDataBaseModel; // TODO i cant't figure out why i need this
 		
 		// TODO his image shows a title "Editing News Maker" idk how to add that
 		// this does what populateNewsStoriesJList should do
@@ -68,8 +68,8 @@ public class EditNewsMakerView extends JPanel implements ActionListener{
 		jplNewsStoryList = new JPanel(new BorderLayout());
 		jplNewsStoryList.add(jspNewsStoryList, BorderLayout.CENTER);
 		jplNewsStoryList.add(jbtRemoveFromStory, BorderLayout.SOUTH);
-		
-		
+
+
 		// makes jpanel for name with text field and label
 		jtfName = new JTextField(newsMakerModel.getName());
 		jplName = new JPanel();
@@ -80,11 +80,11 @@ public class EditNewsMakerView extends JPanel implements ActionListener{
 		this.add(jplName, BorderLayout.NORTH);
 		this.add(jplNewsStoryList, BorderLayout.CENTER);				
 	}
-	
+
 	public int[] getSelectedNewsStoryIndices(){
 		return jlNewsStoryList.getSelectedIndices();	
 	}
-	
+
 	private void populateNewsStoriesJList(){
 		// not entirely sure what this should do
 		newsStoryStringList = new DefaultListModel<String>();
@@ -96,7 +96,7 @@ public class EditNewsMakerView extends JPanel implements ActionListener{
 		}
 		jlNewsStoryList = new JList<String>(newsStoryStringList);
 	}
-	
+
 	private void enableRemovalButton(){
 		// enables the remove button if the news maker is not "none" and if there are 
 		// news stories in the list
@@ -108,6 +108,7 @@ public class EditNewsMakerView extends JPanel implements ActionListener{
 			jbtRemoveFromStory.setEnabled(false);
 		}
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent actionEvent) {
 		enableRemovalButton();
