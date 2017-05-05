@@ -2,15 +2,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -42,10 +47,16 @@ public class NewsController {
 	
 	public void setSelectionView(SelectionView selectionView){
 		this.selectionView = selectionView;
+		this.selectionView.registerDisplayMenuListener(new DisplayMenuListener());
+		this.selectionView.registerFileMenuListener(new FileMenuListener());
+		this.selectionView.registerNewsMakerMenuListener(new NewsMakerMenuListener());
+		this.selectionView.registerNewsStoryMenuListener(new NewsStoryMenuListener());
 	}
 	
 	private void loadNewsData() throws IOException, ClassNotFoundException{
+
 		JFileChooser j = new JFileChooser();
+		j.setDialogTitle("Select file for NewsDataBaseModel");
 		int returnVal = j.showOpenDialog(selectionView);
 		if(JFileChooser.APPROVE_OPTION == returnVal){
 			String fileName = null;
@@ -56,38 +67,55 @@ public class NewsController {
 			}
 			FileInputStream fileInputStream = new FileInputStream(fileName);
 			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-			newsDataBaseModel = (NewsDataBaseModel)objectInputStream.readObject();
+			NewsDataBaseModel toCopy = (NewsDataBaseModel)objectInputStream.readObject();
+
+			newsDataBaseModel.none = toCopy.none;
+			newsDataBaseModel.setNewsMakerListModel(toCopy.getNewsMakerListModel());
+			newsDataBaseModel.setNewsStoryListModel(toCopy.getNewsStoryListModel());
+			newsDataBaseModel.setNewsSourceMap(toCopy.getNewsSourceMap());
+			newsDataBaseModel.setNewsTopicMap(toCopy.getNewsTopicMap());
+			newsDataBaseModel.setNewsSubjectMap(toCopy.getNewsSubjectMap());
+			
 			objectInputStream.close();
 		}								
+		else if(JFileChooser.CANCEL_OPTION == returnVal){
+			return;
+		}				
 	}
 	
-	private void saveNewsData(){
+	private void saveNewsData() throws IOException{
 		JFileChooser j = new JFileChooser();
-		int returnVal = j.showOpenDialog(selectionView);
+		int returnVal = j.showSaveDialog(selectionView);
 		if(JFileChooser.APPROVE_OPTION == returnVal){
 			String fileName = null;
 			try{
 				fileName = j.getSelectedFile().getCanonicalPath();
 			}
 			catch(IOException e){						
-			}			
+			}
+			
+			NewsDataBaseModel toSave = new NewsDataBaseModel(newsDataBaseModel.getNewsMakerListModel(), newsDataBaseModel.getNewsStoryListModel());
+			toSave.setNewsSourceMap(newsDataBaseModel.getNewsSourceMap());
+			toSave.setNewsTopicMap(newsDataBaseModel.getNewsTopicMap());
+			toSave.setNewsSubjectMap(newsDataBaseModel.getNewsSubjectMap());
+			
 			FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-			objectOutputStream.writeObject(newsDataBaseModel);
+			objectOutputStream.writeObject(toSave);
 			objectOutputStream.close();
-		}
+		}		
 	}
 	
-	private void importNoozStories(){
+	private void importNoozStories() throws IOException{
 		boolean haveSources = false;
 		boolean haveTopics = false;
 		boolean haveSubjects = false;
 		boolean haveStories = false;
 
-		Map<String, String> newsSourceMap;
-		Map<String, String> newsTopicMap;
-		Map<String, String> newsSubjectMap;
-		String storiesFileName;
+		Map<String, String> newsSourceMap = new HashMap<String, String>();
+		Map<String, String> newsTopicMap = new HashMap<String, String>();
+		Map<String, String> newsSubjectMap = new HashMap<String, String>();
+		String storiesFileName = "";
 
 		JFileChooser j = new JFileChooser();
 		
@@ -106,7 +134,7 @@ public class NewsController {
 				String[] options = {"Source Codes","Topic Codes","Subject Codes"};
 				String fileType = (String)JOptionPane.showInputDialog(frame, "What kind of file did you choose?", 
 						"File Type", JOptionPane.QUESTION_MESSAGE, null, options, "Source Codes");
-				
+
 				if(fileType.equals("Source Codes")){
 					newsSourceMap = CodeFileProcessor.readCodeFile(fileName);
 					haveSources = true;
@@ -120,24 +148,31 @@ public class NewsController {
 					haveSubjects = true;
 				}
 			}
-
-			returnVal = j.showOpenDialog(selectionView);
-			if(JFileChooser.APPROVE_OPTION == returnVal){					
-				String fileName = null;
-				try{
-					fileName = j.getSelectedFile().getCanonicalPath();
-				}
-				catch(IOException e){						
-				}		
-				storiesFileName = fileName;
+			else if(JFileChooser.CANCEL_OPTION == returnVal){
+				return;
 			}
 		}
+
+		int returnVal = j.showOpenDialog(selectionView);
+		if(JFileChooser.APPROVE_OPTION == returnVal){					
+			String fileName = null;
+			try{
+				fileName = j.getSelectedFile().getCanonicalPath();
+			}
+			catch(IOException e){
+			}
+			storiesFileName = fileName;
+		}
 		
-		newsDataBaseModel = NoozFileProcessor.readNoozFile(storiesFileName, newsSourceMap, newsTopicMap, newsSubjectMap);
+		NewsDataBaseModel result = NoozFileProcessor.readNoozFile(storiesFileName, newsSourceMap, newsTopicMap, newsSubjectMap);
+		newsDataBaseModel.setNewsMakerListModel(result.getNewsMakerListModel());
+		newsDataBaseModel.setNewsStoryListModel(result.getNewsStoryListModel());
+		newsDataBaseModel.setNewsSourceMap(newsSourceMap);
+		newsDataBaseModel.setNewsTopicMap(newsTopicMap);
+		newsDataBaseModel.setNewsSubjectMap(newsSubjectMap);
 	}
 	
-	//need to finish
-	private void exportNewsStories(){
+	private void exportNewsStories() throws IOException{
 		JFileChooser j = new JFileChooser();
 		int returnVal = j.showOpenDialog(selectionView);
 		if(JFileChooser.APPROVE_OPTION == returnVal){
@@ -146,32 +181,33 @@ public class NewsController {
 				fileName = j.getSelectedFile().getCanonicalPath();
 			}
 			catch(IOException e){
-			}			
-
-			FileWriter outfile = new FileWriter(fileName);
-			BufferedWriter bw = new BufferedWriter(outfile);
-			bw.write(newsDataBaseModel);
-			bw.newLine();
-			bw.close();
+			}	
+			String printout = "";
+			for(int i = 0; i<newsDataBaseModel.getNewsStories().size();++i){
+				printout += UserInterface.convertToOutputFormat(newsDataBaseModel.getNewsStories().get(i), NewsMedia.valuesAsList);
+			}
+			NoozFileProcessor.writeNewsTextFile(fileName, printout);
 		}
 	}
 
 	//https://docs.oracle.com/javase/tutorial/uiswing/components/dialog.html
 	private void addNewsMaker(){
-		JFrame frame = new JFrame();
-		String name = (String)JOptionPane.showInputDialog(frame, "Enter the news maker name.", 
-				"News Maker Name", JOptionPane.QUESTION_MESSAGE, null, null,"");	
-		NewsMakerModel newsMakerModel = new NewsMakerModel(name);
-		if(!newsDataBaseModel.containsNewsMakerModel(newsMakerModel)){
-			newsDataBaseModel.addNewsMakerModel(newsMakerModel);
-		}
-		else{
-			int toReplace = JOptionPane.showConfirmDialog(frame, "Would you like to replace"
-					+ "the existing news maker of this name?", "News Maker Already Exists",
-					JOptionPane.YES_NO_OPTION);
-			if(JOptionPane.YES_OPTION == toReplace){
-				newsDataBaseModel.replaceNewsMakerModel(newsMakerModel);
+		String name = (String)JOptionPane.showInputDialog(selectionView, "Enter the news maker name.", 
+				"News Maker Name", JOptionPane.PLAIN_MESSAGE, null, null, null);	
+		if(null != name){
+			NewsMakerModel newsMakerModel = new NewsMakerModel(name);
+			if(!newsDataBaseModel.containsNewsMakerModel(newsMakerModel)){
+				newsDataBaseModel.addNewsMakerModel(newsMakerModel);
 			}
+			else{
+				int toReplace = JOptionPane.showConfirmDialog(selectionView, "Would you like to replace"
+						+ "the existing news maker of this name?", "News Maker Already Exists",
+						JOptionPane.YES_NO_OPTION);
+				if(JOptionPane.YES_OPTION == toReplace){
+					newsDataBaseModel.replaceNewsMakerModel(newsMakerModel);
+				}
+			}
+			newsDataBaseModel.sortNewsMakerListModel();
 		}
 	}
 	
@@ -183,6 +219,7 @@ public class NewsController {
 		else{
 			for(int i : selectionView.getSelectedNewsMakers()){
 				JDialog jdialog = new JDialog();
+				jdialog.setModal(true);
 				jdialog.setTitle("Editing News Maker");
 				editNewsMakerView = new EditNewsMakerView(newsDataBaseModel.getNewsMakers().get(i),newsDataBaseModel);
 				editNewsMakerView.jtfName.setActionCommand("Remove News Maker");
@@ -190,7 +227,10 @@ public class NewsController {
 				editNewsMakerView.jbtRemoveFromStory.addActionListener(new RemoveNewsMakerFromNewsStoriesListener());
 				editNewsMakerView.jtfName.addActionListener(new EditNewsMakerNameListener());
 				jdialog.add(editNewsMakerView);
+				jdialog.pack();
+				jdialog.setVisible(true);
 			}
+			newsDataBaseModel.sortNewsMakerListModel();
 		}
 	}
 
@@ -229,11 +269,15 @@ public class NewsController {
 	}
 	
 	private void addNewsStory(){
+		// TODO remove below
 		viewDialog = new JDialog();
-		viewDialog.setTitle("Adding News Story");
+		viewDialog.setModal(true);
+		viewDialog.setTitle("Add News Story");
 		addEditNewsStoryView = new AddEditNewsStoryView(newsDataBaseModel,null);
 		addEditNewsStoryView.jbtAddEditNewsStory.addActionListener(new AddEditNewsStoryListener());
 		viewDialog.add(addEditNewsStoryView);
+		viewDialog.pack();
+		viewDialog.setVisible(true);
 	}
 	
 	private void editNewsStories(){	
@@ -244,10 +288,13 @@ public class NewsController {
 		else{
 			for(int i : selectionView.getSelectedNewsStories()){
 				viewDialog = new JDialog();
-				viewDialog.setTitle("Adding News Story");
+				viewDialog.setModal(true);
+				viewDialog.setTitle("Edit News Story");
 				addEditNewsStoryView = new AddEditNewsStoryView(newsDataBaseModel,newsDataBaseModel.getNewsStories().get(i));
 				addEditNewsStoryView.jbtAddEditNewsStory.addActionListener(new AddEditNewsStoryListener());
 				viewDialog.add(addEditNewsStoryView);
+				viewDialog.pack();
+				viewDialog.setVisible(true);
 			}
 		}
 	}
@@ -347,10 +394,10 @@ public class NewsController {
         // now, newsstoryarraylist should be sorted
         // next, turn it into a news story array so that we can use
         // the setNewsStoryListModelFromArray method
-        
+
         NewsStory[] newsStoryArray = new NewsStory[newsStoryArrayList.size()];
         newsStoryArray = newsStoryArrayList.toArray(newsStoryArray);
-        
+
         // now we can update the model
         newsDataBaseModel.setNewsStoryListModelFromArray(newsStoryArray);
 	}
@@ -372,8 +419,7 @@ public class NewsController {
 			newsDataBaseModel.getNewsStoryListModel().remove(toRemove);
 		}		
 	}
-	
-	
+
 	private void deleteAllNewsStories(){
 		newsDataBaseModel.removeAllNewsStories();
 	}
@@ -547,16 +593,36 @@ public class NewsController {
 		public void actionPerformed(ActionEvent actionEvent){			
 			String command = actionEvent.getActionCommand();
 			if(command.equals("Load")){
-				loadNewsData();
+				try {
+					loadNewsData();
+				} catch (ClassNotFoundException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			else if(command.equals("Save")){
-				saveNewsData();
+				try {
+					saveNewsData();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			else if(command.equals("Import")){
-				importNoozStories();
+				try {
+					importNoozStories();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			else if(command.equals("Export")){
-				exportNewsStories();
+				try {
+					exportNewsStories();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -564,16 +630,16 @@ public class NewsController {
 	private class NewsMakerMenuListener implements ActionListener{
 		public void actionPerformed(ActionEvent actionEvent){
 			String command = actionEvent.getActionCommand();
-			if(command.equals("Add Newsmaker")){
+			if(command.equals("Add News Maker")){
 				addNewsMaker();
 			}
-			else if(command.equals("Edit Newsmaker")){
+			else if(command.equals("Edit News Maker")){
 				editNewsMakers();
 			}
-			else if(command.equals("Delete Newsmaker")){
+			else if(command.equals("Delete News Maker")){
 				deleteNewsMakers();
 			}
-			else if(command.equals("Delete Newsmaker List")){
+			else if(command.equals("Delete News Maker List")){
 				deleteNewsMakerList();
 			}
 		}
@@ -624,22 +690,22 @@ public class NewsController {
 			}
 			// if it is already there, then ask if it should be replaced
 			else{
-				int toReplace = JOptionPane.showConfirmDialog(null, "Would you like to replace" // TODO figure out the frame
+				int toReplace = JOptionPane.showConfirmDialog(selectionView, "Would you like to replace" // TODO figure out the frame
 						+ "the existing news maker of this name?", "News Maker Already Exists",
 						JOptionPane.YES_NO_OPTION);
 				if(JOptionPane.YES_OPTION == toReplace){
 					NewsMakerModel oldNewsMaker = newsDataBaseModel.getNewsMakerListModel().get(new NewsMakerModel(name));
-					for(int i; i < oldNewsMaker.getNewsStoryListModel().size(); i++){
+					for(int i = 0; i < oldNewsMaker.getNewsStoryListModel().size(); i++){
 						NewsStory newsStory = oldNewsMaker.getNewsStoryListModel().get(i);
 						
 						// if the first newsmaker is the same
-						if(newsStory.getNewsMaker1.equals(editNewsMakerView.newsMakerModel)){
-							newsStory.getNewsMaker1.remove(newsStory);
+						if(newsStory.getNewsMaker1().equals(editNewsMakerView.newsMakerModel)){
+							newsStory.getNewsMaker1().getNewsStoryListModel().remove(newsStory);
 							newsStory.setNewsMaker1(newsDataBaseModel.none);
 							newsDataBaseModel.none.addNewsStory(newsStory);
 						}
-						else if(newsStory.getNewsMaker2.equals(editNewsMakerView.newsMakerModel)){
-							newsStory.getNewsMaker2.remove(newsStory);
+						else if(newsStory.getNewsMaker2().equals(editNewsMakerView.newsMakerModel)){
+							newsStory.getNewsMaker2().getNewsStoryListModel().remove(newsStory);
 							newsStory.setNewsMaker2(newsDataBaseModel.none);
 							newsDataBaseModel.none.addNewsStory(newsStory);
 						}
@@ -688,6 +754,7 @@ public class NewsController {
 			String subject = (String) addEditNewsStoryView.jcbNewsStorySubject.getSelectedItem();
 			String newsMaker1Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker1.getSelectedItem();
 			String newsMaker2Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker2.getSelectedItem();
+			PartOfDay partOfDay = (PartOfDay) addEditNewsStoryView.jcbNewsStoryPartOfDay.getSelectedItem();
 			
 			// error checking, if the names are the same, throw illegal arugment exception
 			if(newsMaker1Name.equals(newsMaker2Name) && !newsMaker1Name.equals("None")){
@@ -708,7 +775,7 @@ public class NewsController {
 			NewsMakerModel newsMakerModel1 = new NewsMakerModel(newsMaker1Name);
 			// If the news maker is on the list, use the copy already on the list
 			if (newsDataBaseModel.containsNewsMakerModel(newsMakerModel1)) {
-				newsMakerModel1 = newsDataBaseModel.getNewsMakerListModel.get(newsMakerModel1);
+				newsMakerModel1 = newsDataBaseModel.getNewsMakerListModel().get(newsMakerModel1);
 			}
 			// Otherwise, add the new news maker to the list
 			else {
@@ -722,7 +789,7 @@ public class NewsController {
 			NewsMakerModel newsMakerModel2 = new NewsMakerModel(newsMaker2Name);
 			// If the news maker is on the list, use the copy already on the list
 			if (newsDataBaseModel.containsNewsMakerModel(newsMakerModel2)) {
-				newsMakerModel2 = newsDataBaseModel.getNewsMakerListModel.get(newsMakerModel2);
+				newsMakerModel2 = newsDataBaseModel.getNewsMakerListModel().get(newsMakerModel2);
 			}
 			// Otherwise, add the new news maker to the list
 			else {
@@ -731,17 +798,21 @@ public class NewsController {
 				
 			
 			// make the localDate
-			LocalDate date = LocalDate.of(year, month, day);
+			LocalDate date = LocalDate.of(year,month.toInt(), day);
 			
 			// if we are adding a story, we construct a new story
 			// TODO check if the constructor is right
 			if(actionEvent.getActionCommand().equals("Add News Story")){
-				NewsStory newsStory = new NewsStory(date, 
-									source,
-									length,
-									subject,
-									newsMakerModel1,
-									newsMakerModel2);
+				NewsStory newsStory;
+				if(newsMedia.equals(NewsMedia.NEWSPAPER)){
+					newsStory = new NewspaperStory(date, source, length, topic,	subject, newsMakerModel1, newsMakerModel2);
+				}
+				else if(newsMedia.equals(NewsMedia.TV)){
+					newsStory = new TVNewsStory(date, source, length, topic, subject, partOfDay, newsMakerModel1, newsMakerModel2);					
+				}
+				else{
+					newsStory = new OnlineNewsStory(date, source, length, topic, subject, partOfDay, newsMakerModel1, newsMakerModel2);					
+				}
 				newsMakerModel1.addNewsStory(newsStory);
 				newsMakerModel2.addNewsStory(newsStory);
 				newsDataBaseModel.addNewsStory(newsStory);
@@ -814,5 +885,5 @@ public class NewsController {
 			viewDialog.dispose();
 		}
 	}
-		
+
 }
