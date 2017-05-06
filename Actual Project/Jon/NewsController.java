@@ -222,8 +222,8 @@ public class NewsController {
 				jdialog.setModal(true);
 				jdialog.setTitle("Editing News Maker");
 				editNewsMakerView = new EditNewsMakerView(newsDataBaseModel.getNewsMakers().get(i),newsDataBaseModel);
-				editNewsMakerView.jtfName.setActionCommand("Remove News Maker");
-				editNewsMakerView.jbtRemoveFromStory.setActionCommand("Edit News Maker");
+				editNewsMakerView.jtfName.setActionCommand("Edit News Maker");
+				editNewsMakerView.jbtRemoveFromStory.setActionCommand("Remove News Maker");
 				editNewsMakerView.jbtRemoveFromStory.addActionListener(new RemoveNewsMakerFromNewsStoriesListener());
 				editNewsMakerView.jtfName.addActionListener(new EditNewsMakerNameListener());
 				jdialog.add(editNewsMakerView);
@@ -269,7 +269,6 @@ public class NewsController {
 	}
 	
 	private void addNewsStory(){
-		// TODO remove below
 		viewDialog = new JDialog();
 		viewDialog.setModal(true);
 		viewDialog.setTitle("Add News Story");
@@ -287,6 +286,7 @@ public class NewsController {
 		}
 		else{
 			for(int i : selectionView.getSelectedNewsStories()){
+				editedNewsStory = newsDataBaseModel.getNewsStoryListModel().get(i);
 				viewDialog = new JDialog();
 				viewDialog.setModal(true);
 				viewDialog.setTitle("Edit News Story");
@@ -684,6 +684,10 @@ public class NewsController {
 			
 			// if we don't already have a newsmaker  with this name, change its name
 			// and resort
+			if(editNewsMakerView.newsMakerModel.equals(newsDataBaseModel.none)){
+				JOptionPane.showMessageDialog(editNewsMakerView, "The name for news maker None cannot be modified.");
+				return;
+			}
 			if(!newsDataBaseModel.containsNewsMakerModel(new NewsMakerModel(name))){
 				editNewsMakerView.newsMakerModel.setName(name);
 				newsDataBaseModel.getNewsMakerListModel().sort();
@@ -720,8 +724,6 @@ public class NewsController {
 	
 	public class RemoveNewsMakerFromNewsStoriesListener implements ActionListener{
 		public void actionPerformed(ActionEvent actionEvent){
-			// get the stories that were selected for the newsmaker
-			int[] selectedIndicies = editNewsMakerView.getSelectedNewsStoryIndices();
 
 			// get the stories that were selected for the newsmaker
 			int[] selectedIndices = editNewsMakerView.getSelectedNewsStoryIndices();
@@ -752,16 +754,20 @@ public class NewsController {
 			String source = (String) addEditNewsStoryView.jcbNewsStorySource.getSelectedItem();
 			String topic = (String) addEditNewsStoryView.jcbNewsStoryTopic.getSelectedItem();
 			String subject = (String) addEditNewsStoryView.jcbNewsStorySubject.getSelectedItem();
-			String newsMaker1Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker1.getSelectedItem();
-			String newsMaker2Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker2.getSelectedItem();
+			String newsMaker1Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker1.getSelectedItem().toString();
+			String newsMaker2Name = (String) addEditNewsStoryView.jcbNewsStoryNewsMaker2.getSelectedItem().toString();
 			PartOfDay partOfDay = (PartOfDay) addEditNewsStoryView.jcbNewsStoryPartOfDay.getSelectedItem();
 			
 			// error checking, if the names are the same, throw illegal arugment exception
 			if(newsMaker1Name.equals(newsMaker2Name) && !newsMaker1Name.equals("None")){
 				throw new IllegalArgumentException();
 			}
-			
-			int length = ((Number) addEditNewsStoryView.jftfNewsStoryLength.getValue()).intValue();
+			int length;
+			if(addEditNewsStoryView.jftfNewsStoryLength.getValue() != null){
+				length = ((Number) addEditNewsStoryView.jftfNewsStoryLength.getValue()).intValue();
+			} else{
+				length = editedNewsStory.getLength();
+			}
 			int year = (Integer)addEditNewsStoryView.jcbNewsStoryYear.getSelectedItem();
 			Month month = (Month) addEditNewsStoryView.jcbNewsStoryMonth.getSelectedItem();
 			int day = (Integer) addEditNewsStoryView.jcbNewsStoryDay.getSelectedItem();
@@ -801,7 +807,6 @@ public class NewsController {
 			LocalDate date = LocalDate.of(year,month.toInt(), day);
 			
 			// if we are adding a story, we construct a new story
-			// TODO check if the constructor is right
 			if(actionEvent.getActionCommand().equals("Add News Story")){
 				NewsStory newsStory;
 				if(newsMedia.equals(NewsMedia.NEWSPAPER)){
@@ -820,6 +825,7 @@ public class NewsController {
 			// otherwise, we should edit the fields of the story
 			else if(actionEvent.getActionCommand().equals("Edit News Story")){
 				if(editedNewsStory != null){
+					
 					// first, remove the news stories from the original newsmakers
 					editedNewsStory.getNewsMaker1().removeNewsStory(editedNewsStory);
 					editedNewsStory.getNewsMaker2().removeNewsStory(editedNewsStory);
@@ -834,7 +840,6 @@ public class NewsController {
 					editedNewsStory.setNewsMaker2(newsMakerModel2);
 				}
 			}
-			
 			viewDialog.dispose();
 		}
 	}
