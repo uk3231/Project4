@@ -19,33 +19,19 @@ public class PieChartView implements ActionListener{
 	
 	private NewsMakerModel newsMakerModel;
 	
-	private String media;
+	private List<NewsMedia> media;
 	
-	private String content;
+	private NewsContent content;
 	
-	private String measure;
+	private NewsMetric measure;
 	
 	
 	public PieChartView(NewsMakerModel newsMakerModel, List<NewsMedia> newsMedia, 
 			NewsContent content, NewsMetric measure){
 		this.newsMakerModel = newsMakerModel;
-		
-		// its a little complicated to construct media if there is a list of 
-		// media enums that are passed to the constructor
-		this.media = "";
-
-		// if all three news media are used, then add nothng to the media type 
-		if(newsMedia.size() == 3){
-		} else if(newsMedia.size() == 2){
-			// add the two media types with a slash
-			media += newsMedia.get(0).toString() + "/" + newsMedia.get(1).toString();
-		} else if(newsMedia.size() == 1){
-			// add the one media type
-			media = newsMedia.get(0).toString();
-		} // there shouldn't be any other options
-
-		this.content = content.toString();
-		this.measure = measure.toString();
+		this.media = newsMedia;
+		this.content = content;
+		this.measure = measure;
 		
 		List<Wedge> wedges = constructWedges();
 		String title = constructTitle();
@@ -62,8 +48,27 @@ public class PieChartView implements ActionListener{
 	 * @return the title
 	 */
 	private String constructTitle(){
+		// its a little complicated to construct media if there is a list of 
+		// media enums that are passed to the constructor
+		String mediaTypes = "";
+
+		// if all three news media are used, then add nothing to the media type 
+		if(media.size() == 3){
+		} else if(media.size() == 2){
+			// add the two media types with a slash
+			mediaTypes += media.get(0).toString() + "/" + media.get(1).toString();
+		} else if(media.size() == 1){
+			// add the one media type
+			mediaTypes = media.get(0).toString();
+		} // there shouldn't be any other options
+
+		String contentType = content.toString();
+		String measureType = measure.toString();
+
+
 		String title = newsMakerModel.getName() + " - " + 
-				media + " " + content + " by " + measure;
+				mediaTypes + " " + contentType + " by " + measureType;
+		
 		return title;
 	}
 	
@@ -98,13 +103,15 @@ public class PieChartView implements ActionListener{
 
 			/* Get items of the correct content type. */
 			String itemName = null;
-			if ("source".equalsIgnoreCase(content.toString())) {
+			if (NewsContent.SOURCE.equals(content)) {
 				itemName = newsStory.getSource();
-			} else if ("topic".equalsIgnoreCase(content.toString())) {
+			} else if (NewsContent.TOPIC.equals(content)) {
 				itemName = newsStory.getTopic();
-			} else if ("subject".equals(content.toString())) {
+			} else if (NewsContent.SUBJECT.equals(content)) {
 				itemName = newsStory.getSubject();
-			} // TODO: Check for invalid content type
+			} else {// TODO: Check for invalid content type
+				System.out.println("we messed up");
+			}
 
 			/*
 			 * Need variable to hold quantity of item. If this item has not been
@@ -164,7 +171,9 @@ public class PieChartView implements ActionListener{
 	public void actionPerformed(ActionEvent actionEvent) {
 		String title = constructTitle();
 		List<Wedge> wedges = constructWedges();
-		
-		pieChart.repaint();
+		//TODO: Figure out what repaint does
+		System.out.println("were here");
+		pieChart.dispose();
+		pieChart = new PieChart(title, wedges);
 	}
 }
